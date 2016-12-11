@@ -59,10 +59,10 @@ class DQNAgent():
         rest = index - 27*int(index / 27)
         ret_arr.append(a)
         a = int(rest / 9) - 1
-        rest = index - 9*int(rest / 9)
+        rest = rest - 9*int(rest / 9)
         ret_arr.append(a)
         a = int(rest / 3) - 1
-        rest = index - 3*int(rest / 3)
+        rest = rest - 3*int(rest / 3)
         ret_arr.append(a)
         ret_arr.append(rest -1)
         
@@ -211,7 +211,7 @@ class simulator:
         self.reset_seq()
         total_reward=0
 
-        for i in range(2000):
+        for i in range(100000):
             # 現在のstateからなるシーケンスを保存
             old_seq = self.seq.copy()
 
@@ -251,7 +251,7 @@ if __name__ == '__main__':
     env=walkerEnvironment()
     sim=simulator(env,agent)
 
-    best_reword = 0
+    best_reword = -200
     for i in range(1000000):
         total_reword = sim.run(train=True)
         if best_reword < total_reword:
