@@ -88,7 +88,7 @@ class DQNAgent():
         return self.index_to_list(action_index)
 
     def reduce_epsilon(self):
-        self.epsilon-=1.0/1000000
+        self.epsilon-=1.0/10000
 
     def get_epsilon(self):
         return self.epsilon
@@ -252,7 +252,7 @@ if __name__ == '__main__':
     sim=simulator(env,agent)
 
     best_reword = -200
-    for i in range(1000000):
+    for i in range(10000):
         total_reword = sim.run(train=True)
         if best_reword < total_reword:
             best_reword = total_reword
@@ -260,7 +260,7 @@ if __name__ == '__main__':
         print(str(i) + " " + str(total_reword) + " " + str(best_reword))            
         env.reset()
 
-        if best_reword > 195:
+        if best_reword > 200:
             break
 
     env.monitor_close()
