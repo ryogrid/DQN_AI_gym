@@ -13,5 +13,5 @@ for i_episode in range(20):
             break
             
 env.monitor.close()
-#gym.upload('./cartpole-experiment-2', api_key='sk_oOcEXAWRgKM6bBJjtTcTw')
+gym.upload('./cartpole-experiment', api_key='sk_oOcEXAWRgKM6bBJjtTcTw')
 

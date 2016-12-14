@@ -12,7 +12,7 @@ import gym
 
 np.random.seed(7)
 
-STATE_NUM = 24
+STATE_NUM = 1
 
 # DQN内部で使われるニューラルネット
 class Q(Chain):
@@ -21,7 +21,8 @@ class Q(Chain):
              l1=L.Linear(state_num, 16),  # stateがインプット
              l2=L.Linear(16, 32),
              l3=L.Linear(32, 64),
-             l4=L.Linear(64, 3*3*3*3), # 出力2チャネル(Qvalue)がアウトプット            
+             l4=L.Linear(64, 128),            
+             l5=L.Linear(128, 2*2*2*2), # 出力2チャネル(Qvalue)がアウトプット            
         )
 
     def __call__(self,x,t):
@@ -31,7 +32,8 @@ class Q(Chain):
         h1 = F.leaky_relu(self.l1(x))
         h2 = F.leaky_relu(self.l2(h1))
         h3 = F.leaky_relu(self.l3(h2))
-        y = F.leaky_relu(self.l4(h3))
+        h4 =  F.leaky_relu(self.l4(h3))
+        y = F.leaky_relu(self.l5(h4))
         return y
 
 # DQNアルゴリズムにしたがって動作するエージェント
@@ -41,7 +43,7 @@ class DQNAgent():
         self.optimizer = optimizers.Adam()
         self.optimizer.setup(self.model)
         self.epsilon = epsilon # ランダムアクションを選ぶ確率
-        self.actions=[-1,0,1] #　行動の選択肢
+        self.actions=[-1,1] #　行動の選択肢
         self.experienceMemory = [] # 経験メモリ
         self.memSize = 300*100  # 経験メモリのサイズ(300サンプリングx100エピソード)
         self.experienceMemory_local=[] # 経験メモリ（エピソードローカル）
@@ -53,26 +55,46 @@ class DQNAgent():
 
     def index_to_list(self, index):
         ret_arr = []
-        a = int(index / 27) - 1
-        rest = index - 27*int(index / 27)
+        a = int(index / 8)
+        if a == 0:
+            a = -1
+        rest = index - 8*int(index / 8)
         ret_arr.append(a)
-        a = int(rest / 9) - 1
-        rest = rest - 9*int(rest / 9)
+        a = int(rest / 4)
+        if a == 0:
+            a = -1
+        rest = rest - 4*int(rest / 4)
         ret_arr.append(a)
-        a = int(rest / 3) - 1
-        rest = rest - 3*int(rest / 3)
+        a = int(rest / 2)
+        if a == 0:
+            a = -1
+        rest = rest - 2*int(rest / 2)
         ret_arr.append(a)
-        ret_arr.append(rest -1)
+        if rest == 0:
+            rest = -1
+        ret_arr.append(rest)
         
         return ret_arr
 
     def list_to_index(self, lst):
         ret = 0
 
-        ret += (lst[0] + 1)*27
-        ret += (lst[1] + 1)*9
-        ret += (lst[2] + 1)*3
-        ret += (lst[3] + 1)
+        a = lst[0]
+        if a == -1:
+            a = 0
+        ret += a*8
+        a = lst[1]
+        if a == -1:
+            a = 0        
+        ret += a*4
+        a = lst[2]
+        if a == -1:
+            a = 0        
+        ret += a*2
+        a = lst[3]
+        if a == -1:
+            a = 0        
+        ret += a
         
         return ret
     
@@ -209,7 +231,7 @@ class simulator:
         self.reset_seq()
         total_reward=0
 
-        for i in range(100000):
+        for i in range(10000):
             # 現在のstateからなるシーケンスを保存
             old_seq = self.seq.copy()
 
@@ -221,7 +243,7 @@ class simulator:
             total_reward +=reward
 
             # 結果を観測してstateとシーケンスを更新する
-            state = observation
+            state = np.array([observation[0]])
             self.push_seq(state)
             new_seq = self.seq.copy()
 
