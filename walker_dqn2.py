@@ -14,15 +14,15 @@ np.random.seed(7)
 
 STATE_NUM = 1
 
-# DQN内部で使われるニューラルネット
+
 class Q(Chain):
     def __init__(self,state_num=STATE_NUM):
         super(Q,self).__init__(
-             l1=L.Linear(state_num, 16),  # stateがインプット
+             l1=L.Linear(state_num, 16),
              l2=L.Linear(16, 32),
              l3=L.Linear(32, 64),
              l4=L.Linear(64, 2*2*2*2),            
-#             l5=L.Linear(128, 2*2*2*2), # 出力2チャネル(Qvalue)がアウトプット            
+#             l5=L.Linear(128, 2*2*2*2),            
         )
 
     def __call__(self,x,t):
@@ -36,22 +36,21 @@ class Q(Chain):
         y = F.leaky_relu(self.l4(h3))
         return y
 
-# DQNアルゴリズムにしたがって動作するエージェント
 class DQNAgent():
     def __init__(self, epsilon=0.99):
         self.model = Q()
         self.optimizer = optimizers.Adam(alpha=0.001)
         self.optimizer.setup(self.model)
-        self.epsilon = epsilon # ランダムアクションを選ぶ確率
-        self.actions=[-1,1] #　行動の選択肢
-        self.experienceMemory = [] # 経験メモリ
-        self.memSize = 300*100  # 経験メモリのサイズ(300サンプリングx100エピソード)
-        self.experienceMemory_local=[] # 経験メモリ（エピソードローカル）
-        self.memPos = 0 #メモリのインデックス
-        self.batch_num = 32 # 学習に使うバッチサイズ
-        self.gamma = 0.9       # 割引率
+        self.epsilon = epsilon
+        self.actions=[-1,1]
+        self.experienceMemory = []
+        self.memSize = 300*100
+        self.experienceMemory_local=[]
+        self.memPos = 0
+        self.batch_num = 32
+        self.gamma = 0.9
         self.loss=0
-        self.total_reward_award=np.ones(100)*-1000 #100エピソード
+        self.total_reward_award=np.ones(100)*-1000
         self.random_exp = 128
         self.idx = 0
 
@@ -101,7 +100,6 @@ class DQNAgent():
         return ret
     
     def get_action_value(self, seq):
-        # seq後の行動価値を返す
         x = Variable(np.hstack([seq]).astype(np.float32).reshape((1,-1)))
         return self.model.predict(x).data[0]
 
@@ -116,10 +114,6 @@ class DQNAgent():
         return self.epsilon
 
     def get_action(self,seq,train):
-        '''
-        seq (theta, old_theta)に対して
-        アクション（左に動くか右に動くか）を返す。
-        '''
         self.epsilon = min(1.0, 0.02 + self.random_exp / (self.idx + 1.0))
         action=[]
         if train==True and np.random.random()<self.epsilon:
@@ -134,12 +128,9 @@ class DQNAgent():
         return action
 
     def experience_local(self,old_seq, action, reward, new_seq):
-        #エピソードローカルな記憶
         self.experienceMemory_local.append( np.hstack([old_seq,action,reward,new_seq]) )
 
     def experience_global(self,total_reward):
-        #グローバルな記憶
-        #ベスト100に入る経験を取り込む
         if np.min(self.total_reward_award)<total_reward:
             i=np.argmin(self.total_reward_award)
             self.total_reward_award[i]=total_reward
@@ -148,7 +139,6 @@ class DQNAgent():
             for x in self.experienceMemory_local:
                 self.experience( x )
 
-        #一定確率で優秀でないものも取り込む
         if np.random.random()<0.01:
             # # NORMAL EXPERIENCE REPLAY
             for x in self.experienceMemory_local:
@@ -164,14 +154,9 @@ class DQNAgent():
             self.experienceMemory.append( x )
 
     def update_model(self,old_seq, action, reward, new_seq):
-        '''
-        モデルを更新する
-        '''
-        # 経験メモリにたまってない場合は更新しない
         if len(self.experienceMemory)<self.batch_num:
             return
 
-        # 経験メモリからバッチを作成
         memsize=len(self.experienceMemory)
         batch_index = list(np.random.randint(0,memsize,(self.batch_num)))
         batch =np.array( [self.experienceMemory[i] for i in batch_index ])
@@ -187,7 +172,6 @@ class DQNAgent():
             targets[i,ai]=( r+ self.gamma * np.max(self.get_action_value(new_seq)))
         t = Variable(np.array(targets).reshape((self.batch_num,-1)).astype(np.float32)) 
 
-        # ネットの更新
         self.model.zerograds()
         loss=self.model(x ,t)
         self.loss = loss.data
@@ -208,8 +192,6 @@ class walkerEnvironment():
     def monitor_close(self):
         self.env.monitor.close()
         
-# 環境とエージェントを渡すとシミュレーションするシミュレータ。
-# ここにシーケンスを持たせるのはなんか変な気もするけどまあいいか。。
 class simulator:
     def __init__(self, environment, agent):
         self.agent = agent
@@ -235,22 +217,17 @@ class simulator:
         total_reward=0
 
         for i in range(10000):
-            # 現在のstateからなるシーケンスを保存
             old_seq = self.seq.copy()
 
-            # エージェントの行動を決める
             action = self.agent.get_action(old_seq,train)
 
-            # 環境に行動を入力する
             observation, reward, done, info =  self.env.step(action)
             total_reward +=reward
 
-            # 結果を観測してstateとシーケンスを更新する
             state = np.array([observation[0]])
             self.push_seq(state)
             new_seq = self.seq.copy()
 
-            # エピソードローカルなメモリに記憶する
             action_idx = self.agent.list_to_index(action)
             self.agent.experience_local(old_seq, action_idx, reward, new_seq)
 
@@ -259,11 +236,9 @@ class simulator:
                 print("Episode finished after {} timesteps".format(i+1))
                 break
         
-        # エピソードローカルなメモリ内容をグローバルなメモリに移す
         self.agent.experience_global(total_reward)
 
         if train:
-            # 学習用メモリを使ってモデルを更新する
             action_idx = self.agent.list_to_index(action)
             self.agent.update_model(old_seq, action_idx, reward, new_seq)
             self.agent.reduce_epsilon()
