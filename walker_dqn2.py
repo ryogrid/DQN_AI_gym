@@ -21,8 +21,8 @@ class Q(Chain):
              l1=L.Linear(state_num, 16),  # stateがインプット
              l2=L.Linear(16, 32),
              l3=L.Linear(32, 64),
-             l4=L.Linear(64, 128),            
-             l5=L.Linear(128, 2*2*2*2), # 出力2チャネル(Qvalue)がアウトプット            
+             l4=L.Linear(64, 2*2*2*2),            
+#             l5=L.Linear(128, 2*2*2*2), # 出力2チャネル(Qvalue)がアウトプット            
         )
 
     def __call__(self,x,t):
@@ -32,15 +32,15 @@ class Q(Chain):
         h1 = F.leaky_relu(self.l1(x))
         h2 = F.leaky_relu(self.l2(h1))
         h3 = F.leaky_relu(self.l3(h2))
-        h4 =  F.leaky_relu(self.l4(h3))
-        y = F.leaky_relu(self.l5(h4))
+#        h4 =  F.leaky_relu(self.l4(h3))
+        y = F.leaky_relu(self.l4(h3))
         return y
 
 # DQNアルゴリズムにしたがって動作するエージェント
 class DQNAgent():
     def __init__(self, epsilon=0.99):
         self.model = Q()
-        self.optimizer = optimizers.Adam()
+        self.optimizer = optimizers.Adam(alpha=0.001)
         self.optimizer.setup(self.model)
         self.epsilon = epsilon # ランダムアクションを選ぶ確率
         self.actions=[-1,1] #　行動の選択肢
@@ -52,6 +52,8 @@ class DQNAgent():
         self.gamma = 0.9       # 割引率
         self.loss=0
         self.total_reward_award=np.ones(100)*-1000 #100エピソード
+        self.random_exp = 128
+        self.idx = 0
 
     def index_to_list(self, index):
         ret_arr = []
@@ -118,6 +120,7 @@ class DQNAgent():
         seq (theta, old_theta)に対して
         アクション（左に動くか右に動くか）を返す。
         '''
+        self.epsilon = min(1.0, 0.02 + self.random_exp / (self.idx + 1.0))
         action=[]
         if train==True and np.random.random()<self.epsilon:
             # random
@@ -251,6 +254,7 @@ class simulator:
             action_idx = self.agent.list_to_index(action)
             self.agent.experience_local(old_seq, action_idx, reward, new_seq)
 
+            self.agent.idx += 1
             if done:
                 print("Episode finished after {} timesteps".format(i+1))
                 break
