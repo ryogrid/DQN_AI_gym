@@ -53,6 +53,7 @@ class AgentQL:
         #Explore sometimes
         if random.random() < self.epsilon:
             act_num = random.randint(0,15)
+            self.last_act = act_num
             return self.index_to_list(act_num)
 
         qs = [self.getQ(self.last_state, a) for a in xrange(16)]
