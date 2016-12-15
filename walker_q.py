@@ -99,7 +99,8 @@ if __name__ == '__main__':
             if done:
                 print("Episode finished after {} timesteps".format(step+1))
                 break
-        
+
+            state = agent.conv_to_int_state(observation[0])
             agent.learn(state, reward)
             agent.reduce_epsilon()
         
