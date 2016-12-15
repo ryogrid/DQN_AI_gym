@@ -74,8 +74,7 @@ class AgentQL:
         pQ=self.getQ(s,self.last_act)
         
         maxQnew=max([self.getQ(s,a) for a in xrange(16)])
-        self.q[(s,a)]=pQ+self.alpha*((r+self.gamma*maxQnew)-pQ)
-
+        self.q[(self.last_state,a)]=pQ+self.alpha*((r+self.gamma*maxQnew)-pQ)
 
 
 if __name__ == '__main__':
