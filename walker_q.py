@@ -1,6 +1,8 @@
 import gym
 import random
 
+EPISODES = 10000
+
 class AgentQL:
     def __init__(self, e=0.99,alpha=0.3):
         self.q={} #set of s,a
@@ -37,7 +39,7 @@ class AgentQL:
         return int(state * 10)
     
     def reduce_epsilon(self):
-        self.epsilon-=1.0/1000
+        self.epsilon-=1.0/EPISODES
 
     def getQ(self, state, act):
         # encourage exploration; "optimistic" 1.0 initial values
@@ -81,7 +83,7 @@ if __name__ == '__main__':
     agent=AgentQL()
     
     best_reward = -200
-    for i in range(1000):
+    for i in range(EPISODES):
         total_reward = 0
         observation = env.reset()
 
