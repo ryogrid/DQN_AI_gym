@@ -12,8 +12,7 @@ import gym
 
 np.random.seed(7)
 
-STATE_NUM = 1
-
+STATE_NUM = 6
 
 class Q(Chain):
     def __init__(self,state_num=STATE_NUM):
@@ -21,8 +20,8 @@ class Q(Chain):
              l1=L.Linear(state_num, 16),
              l2=L.Linear(16, 32),
              l3=L.Linear(32, 64),
-             l4=L.Linear(64, 2*2*2*2),            
-#             l5=L.Linear(128, 2*2*2*2),            
+             l4=L.Linear(64, 128),
+             l5=L.Linear(128, 2*2*2*2),            
         )
 
     def __call__(self,x,t):
@@ -32,8 +31,8 @@ class Q(Chain):
         h1 = F.leaky_relu(self.l1(x))
         h2 = F.leaky_relu(self.l2(h1))
         h3 = F.leaky_relu(self.l3(h2))
-#        h4 =  F.leaky_relu(self.l4(h3))
-        y = F.leaky_relu(self.l4(h3))
+        h4 =  F.leaky_relu(self.l4(h3))
+        y = F.leaky_relu(self.l5(h4))
         return y
 
 class DQNAgent():
@@ -51,7 +50,7 @@ class DQNAgent():
         self.gamma = 0.9
         self.loss=0
         self.total_reward_award=np.ones(100)*-1000
-        self.random_exp = 128
+#        self.random_exp = 128
         self.idx = 0
 
     def index_to_list(self, index):
@@ -114,7 +113,7 @@ class DQNAgent():
         return self.epsilon
 
     def get_action(self,seq,train):
-        self.epsilon = min(1.0, 0.02 + self.random_exp / (self.idx + 1.0))
+#        self.epsilon = min(1.0, 0.02 + self.random_exp / (self.idx + 1.0))
         action=[]
         if train==True and np.random.random()<self.epsilon:
             # random
@@ -207,7 +206,8 @@ class simulator:
         self.seq=np.zeros(self.num_seq)
 
     def push_seq(self, state):
-        self.seq = state
+        self.seq[1:self.num_seq]=self.seq[0:self.num_seq-1]
+        self.seq[0]=state
 
     def run(self, train=True):
 
@@ -224,7 +224,7 @@ class simulator:
             observation, reward, done, info =  self.env.step(action)
             total_reward +=reward
 
-            state = np.array([observation[0]])
+            state = observation[0]
             self.push_seq(state)
             new_seq = self.seq.copy()
 
