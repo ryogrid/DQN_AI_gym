@@ -86,10 +86,9 @@ if __name__ == '__main__':
     for i in range(EPISODES):
         total_reward = 0
         observation = env.reset()
-
+        state = agent.conv_to_int_state(observation[0])
+        
         for step in range(2100):
-            state = agent.conv_to_int_state(observation[0])
-            
             action = agent.get_action(state)
 
             observation, reward, done, info =  env.step(action)
