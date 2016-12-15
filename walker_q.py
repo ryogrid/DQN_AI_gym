@@ -112,5 +112,5 @@ if __name__ == '__main__':
         if best_reward > 200:
             break
 
-    env.monitor_close()
+    env.monitor.close()
     gym.upload('./walker-experiment', api_key='sk_oOcEXAWRgKM6bBJjtTcTw')
