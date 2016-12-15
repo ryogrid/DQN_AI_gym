@@ -85,7 +85,7 @@ if __name__ == '__main__':
         total_reward = 0
         observation = env.reset()
 
-        for i in range(2100):
+        for step in range(2100):
             state = agent.conv_to_int_state(observation[0])
             
             action = agent.get_action(state)
@@ -95,7 +95,7 @@ if __name__ == '__main__':
 
 
             if done:
-                print("Episode finished after {} timesteps".format(i+1))
+                print("Episode finished after {} timesteps".format(step+1))
                 break
         
             agent.learn(state, reward)
