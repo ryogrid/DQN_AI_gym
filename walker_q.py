@@ -78,7 +78,7 @@ class AgentQL:
 
 
 if __name__ == '__main__':
-    env = gym.make('BipedalWalkerHardcore-v2')
+    env = gym.make('BipedalWalker-v2')
     env.monitor.start('./walker-experiment')
     agent=AgentQL()
     
@@ -88,7 +88,7 @@ if __name__ == '__main__':
         observation = env.reset()
         state = agent.conv_to_int_state(observation[0])
         
-        for step in range(2100):
+        for step in range(10000):
             action = agent.get_action(state)
 
             observation, reward, done, info =  env.step(action)
