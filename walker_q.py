@@ -14,17 +14,25 @@ class AgentQL:
 
     def index_to_list(self, index):
         ret_arr = []
-        a = int(index / 27) - 10000
-        rest = index - 27*int(index / 27)
+        a = int(index / 8)
+        if a == 0:
+            a = -1
+        rest = index - 8*int(index / 8)
         ret_arr.append(a)
-        a = int(rest / 9) - 10000
-        rest = rest - 9*int(rest / 9)
+        a = int(rest / 4)
+        if a == 0:
+            a = -1
+        rest = rest - 4*int(rest / 4)
         ret_arr.append(a)
-        a = int(rest / 3) - 10000
-        rest = rest - 3*int(rest / 3)
+        a = int(rest / 2)
+        if a == 0:
+            a = -1
+        rest = rest - 2*int(rest / 2)
         ret_arr.append(a)
-        ret_arr.append(rest -1)
-        
+        if rest == 0:
+            rest = -1
+        ret_arr.append(rest)
+
         return ret_arr
 
     def conv_to_int_state(self, state):
@@ -44,11 +52,11 @@ class AgentQL:
         
         #Explore sometimes
         if random.random() < self.epsilon:
-            act_num = random.randint(0,80)
+            act_num = random.randint(0,15)
             self.last_act = act_num
             return self.index_to_list(act_num)
 
-        qs = [self.getQ(self.last_state, a) for a in xrange(81)]
+        qs = [self.getQ(self.last_state, a) for a in xrange(16)]
         maxQ= max(qs)
 
         if qs.count(maxQ) > 1:
@@ -65,7 +73,7 @@ class AgentQL:
     def learn(self,s,r):
         pQ=self.getQ(s,self.last_act)
         
-        maxQnew=max([self.getQ(s,a) for a in xrange(81)])
+        maxQnew=max([self.getQ(s,a) for a in xrange(16)])
         self.q[(self.last_state,a)]=pQ+self.alpha*((r+self.gamma*maxQnew)-pQ)
 
 
