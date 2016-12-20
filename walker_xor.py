@@ -91,18 +91,17 @@ while streak < 100:
         frames += 1
         
         if done or frames > 2000:
-            if fitness >= 300:
+            if fitness >= 150:
                     print(fitness)
                     print ('streak: ', streak)
                     streak += 1
             else:
                 print(fitness)
                 print('streak: ', streak)
-                streak = 0
-
-            break
+            break                
+#                streak = 0
         
-    episoode += 1        
+    episode += 1        
     if fitness > best_reward:
         best_reward = fitness
     print(str(episode) + " " + str(fitness) + " " + str(best_reward))                    
