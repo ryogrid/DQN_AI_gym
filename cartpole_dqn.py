@@ -16,7 +16,7 @@ import gym
 np.random.seed(7)
 
 # 過去何コマを見るか
-STATE_NUM = 2
+STATE_NUM = 4
 
 # DQN内部で使われるニューラルネット
 class Q(Chain):

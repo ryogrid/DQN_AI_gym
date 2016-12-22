@@ -67,15 +67,13 @@ env.monitor.start('./walker-experiment', force=True)
 
 
 streak = 0
-
+episode = 0
+best_reward = -200
 while streak < 100:
     fitness = 0
     frames = 0
     reward = 0
-    episode = 0
-    best_reward = -200
     observation = env.reset()
-    env.render()
     while 1:
         inputs = observation
 
@@ -87,11 +85,10 @@ while streak < 100:
 
         fitness += reward
 
-        env.render()
         frames += 1
         
         if done or frames > 2000:
-            if fitness >= 150:
+            if fitness >= 100:
                     print(fitness)
                     print ('streak: ', streak)
                     streak += 1
@@ -99,7 +96,6 @@ while streak < 100:
                 print(fitness)
                 print('streak: ', streak)
             break                
-#                streak = 0
         
     episode += 1        
     if fitness > best_reward:
