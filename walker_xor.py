@@ -26,10 +26,10 @@ def eval_fitness(genomes):
         net = nn.create_feed_forward_phenotype(g)
         fitness = 0
         reward = 0
-        frames = 0
         total_fitness = 0
 
         for k in range(5):
+            fitness = 0
             while 1:
                 inputs = observation
 
@@ -42,9 +42,8 @@ def eval_fitness(genomes):
 
 
                 fitness += reward
-                frames += 1
                 # env.render()
-                if done or frames > 2000:
+                if done:
                     total_fitness += fitness
                     # print(fitness)
                     env.reset()
