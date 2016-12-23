@@ -28,8 +28,9 @@ def eval_fitness(genomes):
         reward = 0
         total_fitness = 0
 
-        for k in range(5):
+        for k in range(100):
             fitness = 0
+            frames = 0
             while 1:
                 inputs = observation
 
@@ -40,16 +41,16 @@ def eval_fitness(genomes):
                 # print(output)
                 observation, reward, done, info = env.step(np.array(output))
 
-
+                frames += 1
                 fitness += reward
                 # env.render()
-                if done:
+                if done or frames > 2000:
                     total_fitness += fitness
                     # print(fitness)
                     env.reset()
                     break
         # evaluate the fitness
-        g.fitness = total_fitness / 5
+        g.fitness = total_fitness / 100
         print(g.fitness)
 
 local_dir = os.path.dirname(__file__)
@@ -87,7 +88,7 @@ while streak < 100:
         frames += 1
         
         if done or frames > 2000:
-            if fitness >= 100:
+            if fitness >= 300:
                     print(fitness)
                     print ('streak: ', streak)
                     streak += 1
