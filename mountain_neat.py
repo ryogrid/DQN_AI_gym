@@ -100,4 +100,4 @@ while streak < 100:
     print(str(episode) + " " + str(fitness) + " " + str(best_reward))                    
 print("completed!")
 env.monitor.close()
-gym.upload('./walker-experiment', api_key='sk_oOcEXAWRgKM6bBJjtTcTw')
+gym.upload('./mountain-experiment', api_key='sk_oOcEXAWRgKM6bBJjtTcTw')
