@@ -1,9 +1,3 @@
-# Organism shown in the OpenAI Evaluation was found in the 58th generation
-# A total of 116000 episodes were used for training (400 * 5 * 58)
-# Though the highest fitness organism had a fitness score of 303 in training, it did not solve the environment at test time.
-
-
-
 from __future__ import print_function
 
 import gym
@@ -28,7 +22,7 @@ def eval_fitness(genomes):
         reward = 0
         total_fitness = 0
 
-        for k in range(5):
+        for k in range(1):
             fitness = -100
             frames = 0
             while 1:
@@ -42,17 +36,17 @@ def eval_fitness(genomes):
                 # print(output)
                 observation, reward, done, info = env.step(int(np.array(output)[0]))
 
-                if fitness < observation[1]:
-                    fitness = observation[1]
+                if fitness < observation[0]:
+                    fitness = observation[0]
                 # env.render()
                 frames += 1
-                if done or frames > 2000:
+                if done or frames > 500:
                     total_fitness += fitness
                     # print(fitness)
                     env.reset()
                     break
         # evaluate the fitness
-        g.fitness = total_fitness / 5
+        g.fitness = total_fitness / 1
         print(g.fitness)
 
 local_dir = os.path.dirname(__file__)
@@ -90,7 +84,7 @@ while streak < 100:
         fitness += reward
 
         frames += 1
-        if done or frames > 2000:
+        if done or frames > 500:
             if fitness >= -1900 :
                     print(fitness)
                     print ('streak: ', streak)
