@@ -22,7 +22,7 @@ def eval_fitness(genomes):
         reward = 0
         total_fitness = 0
 
-        for k in range(1):
+        for k in range(100):
             fitness = -100
             frames = 0
             while 1:
@@ -46,7 +46,7 @@ def eval_fitness(genomes):
                     env.reset()
                     break
         # evaluate the fitness
-        g.fitness = total_fitness / 1
+        g.fitness = total_fitness / 100
         print(g.fitness)
 
 local_dir = os.path.dirname(__file__)
